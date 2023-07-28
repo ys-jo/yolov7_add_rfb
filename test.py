@@ -18,7 +18,6 @@ from utils.plots import plot_images, output_to_target, plot_study_txt
 from utils.torch_utils import select_device, time_synchronized, TracedModel
 import onnx
 import onnxruntime
-from dx_simulator import Simulator
 def to_numpy(tensor):
     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
 def test(data,
@@ -44,8 +43,6 @@ def test(data,
          trace=False,
          is_coco=False,
          v5_metric=False,
-         dx_sim = None,
-         json_path = None,
          onnx_path = None):
     # Initialize/load model and set device
     training = model is not None
@@ -65,27 +62,7 @@ def test(data,
         # Directories
         save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
         (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
-        if dx_sim is not None:
-            output_names = ["output"]
-            #meta = {"names": "{0: 'Vehicle', 1: 'Bike', 2: 'Bus', 3: 'Person', 4: 'Boat', 5: 'Wind_power_generator', 6: 'Tank', 7: 'Armoured_car', 8: 'Battles_Ship', 9: 'Fighter_Plane', 10: 'Military_tent', 11: 'Mortar', 12: 'Soldier', 13: 'Police_Car', 14: 'Helicopter', 15: 'Militart_Truck'\
-            #    , 16: 'Watchtower', 17: 'Transmission_tower', 18: 'Tower_crane', 19: 'Solar_Power_Plant', 20: 'Heliport', 21: 'Fire_Truck', 22: 'Ambulance', 23: 'Missile', 24: 'Dump_Truck'}", "stride": "32"}
-            #stride = 32
-            #names = {0: "person", 1: "bicycle", 2: "car", 3: "motorcycle"}
-            #names = {0: 'Vehicle', 1: 'Bike', 2: 'Bus', 3: 'Person', 4: 'Boat', 5: 'Wind_power_generator', 6: 'Tank', 7: 'Armoured_car', 8: 'Battles_Ship', 9: 'Fighter_Plane', 10: 'Military_tent', 11: 'Mortar', 12: 'Soldier', 13: 'Police_Car', 14: 'Helicopter', 15: 'Militart_Truck'\
-            #    , 16: 'Watchtower', 17: 'Transmission_tower', 18: 'Tower_crane', 19: 'Solar_Power_Plant', 20: 'Heliport', 21: 'Fire_Truck', 22: 'Ambulance', 23: 'Missile', 24: 'Dump_Truck'}
-            session = Simulator(
-                opt_model_path=os.path.join(dx_sim, "opt.model"),
-                pre_model_path=os.path.join(dx_sim, "pre.model"),
-                cpu_model_path=os.path.join(dx_sim, "cpu.model"),
-                config_path=json_path,
-                sequence_path=os.path.join(dx_sim, "sequence.pkl"),
-            )
-            print("Use DX-SIM")
-            batch_size = 1
-            gs = 32
-            test_img_size_h, test_img_size_w = [check_img_size(x, gs) for x in imgsz]  # check img_size
-            half = device.type != 'cpu' and half_precision  # half precision only supported on CUDA
-        elif onnx_path is not None:
+        if onnx_path is not None:
             print(onnx_path)
             model = onnx.load(onnx_path)
             onnx.checker.check_model(model)
@@ -152,15 +129,7 @@ def test(data,
         with torch.no_grad():
             # Run model
             t = time_synchronized()
-            if dx_sim is not None:
-                imgs = img.cpu().numpy()  # torch to numpy
-                imgs = imgs.astype(np.uint8)
-                out = session.run(output_names, {session.get_inputs()[0].name: imgs})
-                out = torch.FloatTensor(out[0])
-                print(out)
-                if torch.cuda.is_available():
-                    out = out.cuda()
-            elif onnx_path is not None:
+            if onnx_path is not None:
                 ort_session = onnxruntime.InferenceSession(onnx_path)
                 ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(img)}
                 outputs = ort_session.run(None, ort_inputs)
@@ -366,8 +335,6 @@ if __name__ == '__main__':
     parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
     parser.add_argument('--no-trace', action='store_true', help='don`t trace model')
     parser.add_argument('--v5-metric', action='store_true', help='assume maximum recall as 1.0 in AP calculation')
-    parser.add_argument('--dx-sim', default=None, type=str, help='path of dx_com result')
-    parser.add_argument('--json_path', default=None, type=str, help='path json file')
     parser.add_argument('--onnx_path', default=None, type=str, help='path of onnx file')
     opt = parser.parse_args()
     opt.save_json |= opt.data.endswith('coco.yaml')
@@ -391,8 +358,6 @@ if __name__ == '__main__':
              save_conf=opt.save_conf,
              trace=not opt.no_trace,
              v5_metric=opt.v5_metric,
-             dx_sim = opt.dx_sim,
-             json_path = opt.json_path,
              onnx_path = opt.onnx_path
 
              )
