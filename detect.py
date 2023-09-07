@@ -33,7 +33,8 @@ def detect(save_img=False):
     # Load model
     model = attempt_load(weights, map_location=device)  # load FP32 model
     stride = int(model.stride.max())  # model stride
-    imgsz = check_img_size(imgsz, s=stride)  # check img_size
+    # imgsz = check_img_size(imgsz, s=stride)  # check img_size
+    img_size_h, img_size_w = [check_img_size(x, stride) for x in imgsz]
 
     if trace:
         model = TracedModel(model, device, opt.img_size)
@@ -52,9 +53,9 @@ def detect(save_img=False):
     if webcam:
         view_img = check_imshow()
         cudnn.benchmark = True  # set True to speed up constant image size inference
-        dataset = LoadStreams(source, img_size=imgsz, stride=stride)
+        dataset = LoadStreams(source, img_size=(img_size_h, img_size_w), stride=stride)
     else:
-        dataset = LoadImages(source, img_size=imgsz, stride=stride)
+        dataset = LoadImages(source, img_size=(img_size_h, img_size_w), stride=stride)
 
     # Get names and colors
     names = model.module.names if hasattr(model, 'module') else model.names
@@ -62,8 +63,10 @@ def detect(save_img=False):
 
     # Run inference
     if device.type != 'cpu':
-        model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
-    old_img_w = old_img_h = imgsz
+        model(torch.zeros(1, 3, img_size_h, img_size_w).to(device).type_as(next(model.parameters())))  # run once
+    #old_img_w = old_img_h = imgsz
+    old_img_w = img_size_w
+    old_img_h = img_size_h
     old_img_b = 1
 
     t0 = time.time()
