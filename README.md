@@ -110,7 +110,7 @@ CUDA_VISIBLE_DEVICES=0 python test.py --data data/example.yaml --img 640 640 --b
 - img-size {height, width}
   
 ```shell
-python export.py --weights {pt file} --img-size 640 640 --simplify --batch-size 1
+python export.py --weight {pt file} --img-size 640 640 --simplify --batch-size 1
 ```
 
 
