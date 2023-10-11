@@ -102,7 +102,7 @@ python detect.py --weights {pt file} --conf 0.25 --img-size 640 640 --source inf
 ## Testing
 
 ``` shell
-CUDA_VISIBLE_DEVICES=0 python test.py --data data/example.yaml --img 640 640 --batch 32 --conf 0.001 --iou 0.65 --weights {pt file} 
+CUDA_VISIBLE_DEVICES=0 python test.py --data data/example.yaml --img 640 640 --batch-size 32 --conf 0.001 --iou 0.65 --weights {pt file} 
 ```
 
 
