@@ -84,12 +84,12 @@ python -m torch.distributed.launch --nproc_per_node 3 train.py --workers 8 --dev
 
 On video:
 ``` shell
-python detect.py --weights {pt file} --conf 0.25 --img-size 640 640 --source yourvideo.mp4
+python detect.py --weights {pt file} --conf 0.25 --img-size 640 640 --source {video file path}
 ```
 
 On image:
 ``` shell
-python detect.py --weights {pt file} --conf 0.25 --img-size 640 640 --source inference/images/horses.jpg
+python detect.py --weights {pt file} --conf 0.25 --img-size 640 640 --source {imgae file path}
 ```
 
 <div align="center">

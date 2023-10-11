@@ -39,4 +39,5 @@ thop  # FLOPs computation
 # roboflow
 onnx
 onnxruntime
+onnxsim
 protobuf==3.20.*
