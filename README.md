@@ -16,12 +16,10 @@ pip install -r requirement.txt
 
 
 ## Testing
+- resolution : 512x896 (HxW)   
+- dataset : COCO 2017 VAL
 
-``` shell
-CUDA_VISIBLE_DEVICES=0 python test.py --data data/coco.yaml --img 512 896 --batch 32 --conf 0.001 --iou 0.65 --weights {pt file} 
-```
-
-You will get the results: GPU mAP
+- GPU mAP
 
 ```
  Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.369
@@ -38,7 +36,7 @@ You will get the results: GPU mAP
  Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.723
 ```
 
-You will get the results: NPU mAP - this test on board
+- NPU mAP - this test on board
 
 ```
  Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.291
@@ -70,16 +68,14 @@ bash scripts/get_coco.sh
 Single GPU training
 
 ``` shell
-# train p5 models
-CUDA_VISIBLE_DEVICES=0 python train.py --batch-size 32 --data data/coco.yaml --img-size-train 640 640 --img-size-test 640 640 --cfg cfg/yolov7-tiny-silu-en675-rfb.yaml --weights yolov7-tiny.pt --hyp data/hyp.scratch.tiny.yaml
+CUDA_VISIBLE_DEVICES=0 python train.py --batch-size 32 --data data/example.yaml --img-size-train 640 640 --img-size-test 640 640 --cfg cfg/yolov7-tiny-silu-en675-rfb.yaml --weights yolov7-tiny.pt --hyp data/hyp.scratch.tiny.yaml
 
 ```
 
 Multiple GPU training
 
 ``` shell
-# train p5 models
-python -m torch.distributed.launch --nproc_per_node 3 train.py --workers 8 --device 0,1,2 --sync-bn --batch-size 120 --data data/coco.yaml --img-size-train 640 640 --img-size-test 640 640 --cfg cfg/yolov7-tiny-silu-en675-rfb.yaml --weights yolov7-tiny.pt --hyp data/hyp.scratch.tiny.yaml
+python -m torch.distributed.launch --nproc_per_node 3 train.py --workers 8 --device 0,1,2 --sync-bn --batch-size 120 --data data/example.yaml --img-size-train 640 640 --img-size-test 640 640 --cfg cfg/yolov7-tiny-silu-en675-rfb.yaml --weights yolov7-tiny.pt --hyp data/hyp.scratch.tiny.yaml
 
 ```
 
@@ -101,6 +97,13 @@ python detect.py --weights {pt file} --conf 0.25 --img-size 640 640 --source inf
         <img src="./figure/horses_prediction.jpg" width="59%"/>
     </a>
 </div>
+
+
+## Testing
+
+``` shell
+CUDA_VISIBLE_DEVICES=0 python test.py --data data/example.yaml --img 640 640 --batch 32 --conf 0.001 --iou 0.65 --weights {pt file} 
+```
 
 
 ## Export to ONNX
