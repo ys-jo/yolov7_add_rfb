@@ -44,11 +44,13 @@ class Detect(nn.Module):
         # DUMP Anchor file in weight file dir
         if self.export:
             file = open(os.environ.get('EN675_YOLO_PATH'),"w")
+            file.write('YOLO\n') # YOLO
             file.write(str(self.nl)+'\n') # num of output
             file.write(str(self.na)+'\n') # num of anchor
-            for i in range(self.nl):
-                file.write(str(int(self.anchor_grid[i][0][0][0][0][0])) + '\n') # anchor w
-                file.write(str(int(self.anchor_grid[i][0][0][0][0][1]))+ '\n') # anchor h
+            for layer in range(self.nl):
+                for i in range(self.na):
+                    file.write(str(format(float(self.anchor_grid[layer][0][i][0][0][0]), '.5f')) + '\n') # anchor w
+                    file.write(str(format(float(self.anchor_grid[layer][0][i][0][0][1]), '.5f'))+ '\n') # anchor h
             file.close()
 
         # x = x.copy()  # for profiling
