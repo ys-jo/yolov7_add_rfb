@@ -15,8 +15,10 @@ from utils.activations import Hardswish, SiLU
 from utils.general import set_logging, check_img_size
 from utils.torch_utils import select_device
 from utils.add_nms import RegisterNMS
+import os
 
-if __name__ == '__main__':
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str, default='./yolov7-tiny.pt', help='weights path')
     parser.add_argument('--img-size', nargs='+', type=int, default=[640, 640], help='image size')  # height, width
@@ -41,6 +43,9 @@ if __name__ == '__main__':
     print(opt)
     set_logging()
     t = time.time()
+    # find anchor dump dir
+    dump_dir = opt.weights[:-2] + 'anchor'
+    os.environ['EN675_YOLO_PATH'] = dump_dir
 
     # Load PyTorch model
     device = select_device(opt.device)
@@ -203,3 +208,7 @@ if __name__ == '__main__':
 
     # Finish
     print('\nExport complete (%.2fs). Visualize with https://github.com/lutzroeder/netron.' % (time.time() - t))
+    
+
+if __name__ == '__main__':
+    main()

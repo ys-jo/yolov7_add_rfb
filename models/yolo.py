@@ -18,7 +18,7 @@ try:
     import thop  # for FLOPS computation
 except ImportError:
     thop = None
-
+import os
 
 class Detect(nn.Module):
     stride = None  # strides computed during build
@@ -40,6 +40,17 @@ class Detect(nn.Module):
         self.m = nn.ModuleList(nn.Conv2d(x, self.no * self.na, 1) for x in ch)  # output conv
 
     def forward(self, x):
+        # DUMP Anchor value
+        # DUMP Anchor file in weight file dir
+        if self.export:
+            file = open(os.environ.get('EN675_YOLO_PATH'),"w")
+            file.write(str(self.nl)+'\n') # num of output
+            file.write(str(self.na)+'\n') # num of anchor
+            for i in range(self.nl):
+                file.write(str(int(self.anchor_grid[i][0][0][0][0][0])) + '\n') # anchor w
+                file.write(str(int(self.anchor_grid[i][0][0][0][0][1]))+ '\n') # anchor h
+            file.close()
+
         # x = x.copy()  # for profiling
         z = []  # inference output
         self.training |= self.export
