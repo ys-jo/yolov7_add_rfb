@@ -46,8 +46,10 @@ class Detect(nn.Module):
             file = open(os.environ.get('EN675_YOLO_PATH'),"w")
             file.write('YOLO\n') # YOLO
             file.write(str(self.nl)+'\n') # num of output
-            file.write(str(self.na)+'\n') # num of anchor
             for layer in range(self.nl):
+                file.write(str(int(self.grid[layer][0].shape[2]))+'\n') # num of gridX
+                file.write(str(int(self.grid[layer][0].shape[1]))+'\n') # num of gridY
+                file.write(str(self.na)+'\n') # num of anchor
                 for i in range(self.na):
                     file.write(str(format(float(self.anchor_grid[layer][0][i][0][0][0]), '.5f')) + '\n') # anchor w
                     file.write(str(format(float(self.anchor_grid[layer][0][i][0][0][1]), '.5f'))+ '\n') # anchor h
